@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#050510" />
+<title>For Isha — A Sky of Words</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Cinzel:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: #000;
+    font-family: 'Cormorant Garamond', serif;
+    color: #fff;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body { cursor: crosshair; }
+  body.welcome-open { cursor: default; }
+
+  #sky {
+    position: fixed;
+    inset: 0;
+    display: block;
+    background:
+      radial-gradient(ellipse at 30% 0%, rgba(40, 20, 60, 0.6) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 100%, rgba(60, 20, 50, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at center, #0a0a1f 0%, #050510 40%, #000 100%);
+  }
+
+  /* ---------- Welcome ---------- */
+  .welcome {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    background: radial-gradient(ellipse at center, rgba(20, 10, 40, 0.85) 0%, rgba(0,0,0,0.95) 100%);
+    z-index: 100;
+    transition: opacity 1.4s ease, visibility 1.4s ease;
+    padding: 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .welcome.hidden { opacity: 0; visibility: hidden; }
+
+  .welcome-card {
+    text-align: center;
+    max-width: 520px;
+    padding: 60px 50px;
+    position: relative;
+  }
+
+  .welcome-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 215, 180, 0.18);
+    border-radius: 1px;
+    pointer-events: none;
+  }
+  .welcome-card::after {
+    content: '✦';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 215, 180, 0.55);
+    background: #06030f;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.45em;
+    color: rgba(255, 200, 180, 0.65);
+    margin-bottom: 32px;
+    text-transform: uppercase;
+  }
+
+  h1.title {
+    font-family: 'Caveat', cursive;
+    font-size: 92px;
+    font-weight: 700;
+    line-height: 0.9;
+    background: linear-gradient(135deg, #ffd6b5 0%, #ff9eb5 50%, #c19eff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 22px;
+    filter: drop-shadow(0 0 24px rgba(255, 158, 181, 0.28));
+  }
+
+  .subtitle {
+    font-style: italic;
+    font-size: 22px;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.55;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  .instructions {
+    text-align: left;
+    margin: 0 auto 44px;
+    max-width: 340px;
+  }
+  .instructions .step {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    margin-bottom: 14px;
+    font-size: 16px;
+    color: rgba(255,255,255,0.78);
+    line-height: 1.4;
+  }
+  .instructions .num {
+    font-family: 'Cinzel', serif;
+    color: rgba(255, 180, 200, 0.85);
+    font-size: 12px;
+    min-width: 24px;
+    letter-spacing: 0.1em;
+  }
+
+  button.begin {
+    background: transparent;
+    border: 1px solid rgba(255, 200, 180, 0.45);
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    padding: 16px 42px;
+    cursor: pointer;
+    transition: all 0.45s cubic-bezier(.4,0,.2,1);
+    text-transform: uppercase;
+  }
+  button.begin:hover {
+    background: rgba(255, 158, 181, 0.12);
+    border-color: rgba(255, 158, 181, 0.85);
+    letter-spacing: 0.45em;
+    box-shadow: 0 0 36px rgba(255, 158, 181, 0.3);
+  }
+
+  .signature {
+    margin-top: 30px;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: rgba(255,255,255,0.52);
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- HUD ---------- */
+  .hud {
+    position: fixed;
+    top: 28px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 36px;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease 0.4s;
+  }
+  .hud.visible { opacity: 1; }
+
+  .counter {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: rgba(255, 200, 180, 0.65);
+    text-transform: uppercase;
+  }
+  .counter .num {
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sound-toggle {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.65);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 15px;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+    display: grid; place-items: center;
+  }
+  .sound-toggle:hover {
+    border-color: rgba(255, 200, 180, 0.7);
+    color: rgba(255, 220, 200, 0.95);
+    box-shadow: 0 0 18px rgba(255, 200, 180, 0.15);
+  }
+
+  /* ---------- Tap prompt (animated ripple + dot) ---------- */
+  .hint {
+    position: fixed;
+    bottom: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hint.visible { opacity: 1; }
+  .hint.fade { opacity: 0 !important; transition: opacity 0.7s ease; }
+
+  .tap-graphic {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 14px;
+  }
+  .tap-graphic .ripple {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid rgba(255, 200, 180, 0.65);
+    border-radius: 50%;
+    opacity: 0;
+    animation: tap-ripple 2.4s cubic-bezier(.2,.6,.3,1) infinite;
+  }
+  .tap-graphic .ripple:nth-child(2) { animation-delay: 0.8s; }
+  .tap-graphic .ripple:nth-child(3) { animation-delay: 1.6s; }
+
+  @keyframes tap-ripple {
+    0%   { transform: scale(0.28); opacity: 0; border-color: rgba(255, 220, 200, 0.9); }
+    18%  { opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; border-color: rgba(255, 158, 181, 0); }
+  }
+
+  .tap-dot {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 16px; height: 16px;
+    margin: -8px 0 0 -8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 250, 235, 1) 0%, rgba(255, 175, 195, 0.7) 55%, rgba(255, 140, 180, 0) 100%);
+    box-shadow: 0 0 22px rgba(255, 170, 195, 0.55);
+    animation: tap-pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes tap-pulse {
+    0%, 100% { transform: scale(1);    opacity: 0.95; }
+    50%      { transform: scale(0.72); opacity: 1; }
+  }
+
+  .tap-text {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.02em;
+    animation: tap-text-breathe 3s ease-in-out infinite;
+  }
+  @keyframes tap-text-breathe {
+    0%, 100% { color: rgba(255, 255, 255, 0.42); }
+    50%      { color: rgba(255, 210, 195, 0.85); }
+  }
+
+  /* ---------- Finale message ---------- */
+  .finale-msg {
+    position: fixed;
+    bottom: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 2.4s ease;
+    z-index: 20;
+  }
+  .finale-msg.visible { opacity: 1; }
+  .finale-msg .line {
+    font-family: 'Caveat', cursive;
+    font-size: 30px;
+    font-style: italic;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.2;
+    text-shadow: 0 0 24px rgba(255, 158, 181, 0.4);
+  }
+  .finale-msg .small {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.45em;
+    color: rgba(255, 200, 180, 0.55);
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+
+  /* Vignette */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+    z-index: 5;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 720px) {
+    .hud { padding: 0 18px; top: 20px; }
+    .counter { font-size: 9px; letter-spacing: 0.3em; }
+    .sound-toggle { width: 34px; height: 34px; font-size: 14px; }
+    .welcome { padding: 20px; }
+    .welcome-card { padding: 50px 30px; max-width: 100%; }
+    .label { font-size: 10px; letter-spacing: 0.4em; margin-bottom: 24px; }
+    h1.title { font-size: 76px; margin-bottom: 18px; }
+    .subtitle { font-size: 19px; margin-bottom: 32px; line-height: 1.5; }
+    .instructions { margin-bottom: 36px; max-width: 300px; }
+    .instructions .step { font-size: 15px; gap: 14px; margin-bottom: 12px; }
+    button.begin { padding: 15px 36px; font-size: 11px; letter-spacing: 0.35em; }
+    .signature { font-size: 18px; margin-top: 24px; }
+    .hint { bottom: 22%; }
+    .tap-graphic { width: 72px; height: 72px; margin-bottom: 12px; }
+    .tap-text { font-size: 21px; }
+    .finale-msg .line { font-size: 26px; }
+    .finale-msg { bottom: 38px; }
+  }
+
+  @media (max-width: 400px) {
+    .welcome-card { padding: 38px 22px; }
+    .label { font-size: 9px; letter-spacing: 0.35em; margin-bottom: 20px; }
+    h1.title { font-size: 64px; margin-bottom: 14px; }
+    .subtitle { font-size: 17px; margin-bottom: 28px; }
+    .instructions { max-width: 260px; margin-bottom: 30px; }
+    .instructions .step { font-size: 14px; gap: 12px; }
+    .instructions .num { font-size: 11px; min-width: 20px; }
+    button.begin { padding: 13px 28px; font-size: 10px; letter-spacing: 0.3em; }
+    .signature { font-size: 16px; margin-top: 20px; }
+    .hud { padding: 0 14px; top: 16px; }
+    .counter .num { margin: 0 4px; }
+    .sound-toggle { width: 32px; height: 32px; }
+    .tap-graphic { width: 64px; height: 64px; }
+    .tap-text { font-size: 19px; }
+    .finale-msg .line { font-size: 23px; }
+    .vignette { background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.7) 100%); }
+  }
+
+  /* Short / landscape phones — collapse vertical space */
+  @media (max-height: 640px) {
+    .welcome-card { padding: 32px 28px; }
+    h1.title { font-size: 60px; margin-bottom: 12px; }
+    .subtitle { font-size: 17px; margin-bottom: 22px; }
+    .instructions { margin-bottom: 24px; }
+    .instructions .step { margin-bottom: 10px; }
+    .signature { margin-top: 18px; }
+    .hint { bottom: 14%; }
+  }
+</style>
+</head>
+<body class="welcome-open">
+
+<canvas id="sky"></canvas>
+<div class="vignette"></div>
+
+<div class="hud" id="hud">
+  <div class="counter">Sparks <span class="num" id="count">00</span>/ 12</div>
+  <button class="sound-toggle" id="sound" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+</div>
+
+<div class="hint" id="hint">
+  <div class="tap-graphic" aria-hidden="true">
+    <span class="ripple"></span>
+    <span class="ripple"></span>
+    <span class="ripple"></span>
+    <span class="tap-dot"></span>
+  </div>
+  <div class="tap-text">tap the sky ✦</div>
+</div>
+
+<div class="finale-msg" id="finaleMsg">
+  <div class="line">— for you, always.</div>
+  <div class="small">j  ✦</div>
+</div>
+
+<div class="welcome" id="welcome">
+  <div class="welcome-card">
+    <div class="label">A letter, in light</div>
+    <h1 class="title">Isha,</h1>
+    <p class="subtitle">
+      tonight the sky is yours.<br />
+      i borrowed it for a little while.
+    </p>
+
+    <div class="instructions">
+      <div class="step"><span class="num">I.</span><span>tap anywhere on the dark sky</span></div>
+      <div class="step"><span class="num">II.</span><span>each spark holds a word meant for you</span></div>
+      <div class="step"><span class="num">III.</span><span>the twelfth one — that one's the best</span></div>
+    </div>
+
+    <button class="begin" id="begin">Light the Sky →</button>
+    <div class="signature">— j ✦</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- Canvas setup ----------
+  const canvas = document.getElementById('sky');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1;
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width  = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    seedStars();
+  }
+
+  // ---------- Stars ----------
+  let stars = [];
+  function seedStars() {
+    stars = [];
+    const count = Math.floor((W * H) / 7500);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H * 0.78,
+        r: Math.random() * 1.1 + 0.2,
+        t: Math.random() * Math.PI * 2,
+        s: 0.012 + Math.random() * 0.03,
+      });
+    }
+  }
+
+  // ---------- Palettes & words ----------
+  const palettes = [
+    ['#ff7eb3', '#ffd1e1', '#ffffff'],
+    ['#ffd16b', '#ffeec1', '#ffffff'],
+    ['#ff8a5b', '#ffd0b8', '#fff5e8'],
+    ['#c084fc', '#e9d5ff', '#ffffff'],
+    ['#5eead4', '#ccfbf1', '#ffffff'],
+    ['#fb7185', '#fecdd3', '#fff5f7'],
+    ['#a78bfa', '#ddd6fe', '#ffffff'],
+    ['#facc15', '#fef3c7', '#ffffff'],
+    ['#f472b6', '#fce7f3', '#ffffff'],
+  ];
+
+  const words = [
+    'Beautiful', 'Adorable',  'Charming',    'Gorgeous',
+    'Radiant',   'Elegant',   'Precious',    'Mesmerizing',
+    'Lovable',   'Stunning',  'Graceful',    'Angelic',
+    'Cute',      'Dreamy',    'Magical',     'Soulful',
+    'Sparkling', 'Sweetheart','Sunshine',    'Flawless'
+  ];
+
+  // ---------- State ----------
+  const rockets = [];
+  const particles = [];
+  const textLabels = [];
+  let clickCount = 0;
+  let finaleStarted = false;
+  let fontsReady = false;
+
+  // ---------- Utilities ----------
+  function hexToRgb(hex) {
+    const h = hex.replace('#','');
+    return {
+      r: parseInt(h.slice(0,2), 16),
+      g: parseInt(h.slice(2,4), 16),
+      b: parseInt(h.slice(4,6), 16),
+    };
+  }
+  function rgba({r,g,b}, a) { return `rgba(${r},${g},${b},${a})`; }
+
+  // Pre-convert palettes
+  const palettesRGB = palettes.map(p => p.map(hexToRgb));
+  function pickPalette() { return palettesRGB[Math.floor(Math.random() * palettesRGB.length)]; }
+
+  // ---------- Text sampling ----------
+  function sampleText(word, fontSize = 72, step = 4) {
+    const off = document.createElement('canvas');
+    const tctx = off.getContext('2d');
+    const font = `700 ${fontSize}px "Caveat", cursive`;
+    tctx.font = font;
+    const metrics = tctx.measureText(word);
+    const wpx = Math.max(40, Math.ceil(metrics.width) + 24);
+    const hpx = Math.ceil(fontSize * 1.25);
+    off.width = wpx;
+    off.height = hpx;
+    const c = off.getContext('2d');
+    c.font = font;
+    c.fillStyle = '#fff';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillText(word, wpx / 2, hpx / 2);
+
+    const img = c.getImageData(0, 0, wpx, hpx);
+    const pts = [];
+    for (let y = 0; y < hpx; y += step) {
+      for (let x = 0; x < wpx; x += step) {
+        const idx = (y * wpx + x) * 4;
+        if (img.data[idx + 3] > 140) {
+          pts.push({ x: x - wpx / 2, y: y - hpx / 2 });
+        }
+      }
+    }
+    return pts;
+  }
+
+  // ---------- Rocket ----------
+  class Rocket {
+    constructor(targetX, targetY, word, palette, fontSize = 72) {
+      this.targetX = targetX;
+      this.targetY = targetY;
+      this.startX = targetX + (Math.random() - 0.5) * 80;
+      this.startY = H + 12;
+      this.x = this.startX;
+      this.y = this.startY;
+      this.t = 0;
+      this.duration = 48 + Math.random() * 18;
+      this.word = word;
+      this.palette = palette;
+      this.fontSize = fontSize;
+      this.trail = [];
+      this.dead = false;
+      this.color = palette[0];
+    }
+    update() {
+      this.t++;
+      const p = Math.min(this.t / this.duration, 1);
+      const e = 1 - Math.pow(1 - p, 2.4);
+      this.x = this.startX + (this.targetX - this.startX) * e;
+      this.y = this.startY + (this.targetY - this.startY) * e;
+
+      this.trail.push({ x: this.x, y: this.y, a: 1 });
+      if (this.trail.length > 22) this.trail.shift();
+      for (let t of this.trail) t.a -= 0.045;
+
+      if (p >= 1) {
+        this.dead = true;
+        burst(this.x, this.y, this.word, this.palette, this.fontSize);
+        playBoom();
+      }
+    }
+    draw() {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.trail.length; i++) {
+        const t = this.trail[i];
+        if (t.a <= 0) continue;
+        ctx.fillStyle = rgba(this.color, t.a * 0.5);
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, (i / this.trail.length) * 2.4 + 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = rgba({r:255,g:240,b:220}, 0.95);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+
+  // ---------- TextLabel — the readable word that hangs in the sky ----------
+  class TextLabel {
+    constructor(x, y, text, palette, fontSize = 60) {
+      this.text = text;
+      this.palette = palette;
+      this.color = palette[0];
+      this.fontSize = fontSize;
+      this.t = 0;
+      this.fadeIn = 14;
+      this.hold = 150;
+      this.fadeOut = 95;
+      this.totalLife = this.fadeIn + this.hold + this.fadeOut;
+      this.dead = false;
+
+      // Auto-shrink so long phrases (e.g. with emoji) fit narrow screens
+      const probe = document.createElement('canvas').getContext('2d');
+      probe.font = `700 ${this.fontSize}px "Caveat", cursive`;
+      const maxTextWidth = W - 36;
+      const measured = probe.measureText(this.text).width;
+      if (measured > maxTextWidth && measured > 0) {
+        this.fontSize = Math.max(22, Math.floor(this.fontSize * (maxTextWidth / measured)));
+      }
+
+      this.cache = this.buildCache();
+      const cw = this.cache.width, ch = this.cache.height;
+      this.x = Math.max(cw / 2 + 8, Math.min(W - cw / 2 - 8, x));
+      this.y = Math.max(ch / 2 + 8, Math.min(H - ch / 2 - 8, y));
+    }
+    buildCache() {
+      const off = document.createElement('canvas');
+      const c = off.getContext('2d');
+      const fontStr = `700 ${this.fontSize}px "Caveat", cursive`;
+      c.font = fontStr;
+      const m = c.measureText(this.text);
+      const pad = Math.ceil(this.fontSize * 0.9);
+      off.width  = Math.ceil(m.width) + pad * 2;
+      off.height = Math.ceil(this.fontSize * 1.5) + pad;
+      const cx = off.width / 2, cy = off.height / 2;
+      c.font = fontStr;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+
+      // Outer halo — wide colored bloom
+      c.shadowColor = rgba(this.color, 0.95);
+      c.shadowBlur = Math.max(28, this.fontSize * 0.55);
+      c.fillStyle = rgba(this.color, 0.6);
+      c.fillText(this.text, cx, cy);
+      c.fillText(this.text, cx, cy); // double-pass for richer glow
+
+      // Mid glow — warm white
+      c.shadowColor = rgba(this.color, 1);
+      c.shadowBlur = Math.max(10, this.fontSize * 0.18);
+      c.fillStyle = 'rgba(255, 240, 215, 0.96)';
+      c.fillText(this.text, cx, cy);
+
+      // Crisp white core — the legible heart of the word
+      c.shadowBlur = 0;
+      c.fillStyle = '#ffffff';
+      c.fillText(this.text, cx, cy);
+
+      return off;
+    }
+    alpha() {
+      if (this.t < this.fadeIn) return this.t / this.fadeIn;
+      if (this.t < this.fadeIn + this.hold) return 1;
+      const p = (this.t - this.fadeIn - this.hold) / this.fadeOut;
+      return Math.max(0, 1 - p);
+    }
+    renderY() {
+      if (this.t < this.fadeIn) {
+        const p = this.t / this.fadeIn;
+        const e = 1 - Math.pow(1 - p, 2);
+        return this.y + 8 * (1 - e); // rises into place
+      }
+      if (this.t > this.fadeIn + this.hold) {
+        const p = (this.t - this.fadeIn - this.hold) / this.fadeOut;
+        return this.y - 6 * p; // gentle drift up while fading
+      }
+      return this.y;
+    }
+    update() {
+      this.t++;
+      if (this.t > this.totalLife) this.dead = true;
+    }
+    draw() {
+      const a = this.alpha();
+      if (a <= 0) return;
+      const y = this.renderY();
+      ctx.globalAlpha = a;
+      ctx.drawImage(this.cache, this.x - this.cache.width / 2, y - this.cache.height / 2);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ---------- Burst (word + sparks) ----------
+  function burst(cx, cy, word, palette, fontSize = 72) {
+    // 1. Initial spark burst — thinner & quicker so it clears the word area
+    const sparkCount = 28 + Math.floor(fontSize * 0.18);
+    for (let i = 0; i < sparkCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2.4 + Math.random() * 4.8; // faster outward so they clear the text
+      const c = palette[Math.floor(Math.random() * palette.length)];
+      particles.push({
+        type: 'spark',
+        x: cx, y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: 0.024 + Math.random() * 0.022, // fade fast so the word reads cleanly
+        color: c,
+        size: 0.8 + Math.random() * 1.1,
+        gravity: 0.045,
+      });
+    }
+
+    // 2. The readable word — actual text, glowing in the sky (not dots)
+    if (word) {
+      textLabels.push(new TextLabel(cx, cy, word, palette, fontSize));
+    }
+  }
+
+  // sparkle-only burst (used during finale)
+  function sparkleBurst(cx, cy, palette) {
+    const n = 60 + Math.floor(Math.random() * 40);
+    for (let i = 0; i < n; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.2 + Math.random() * 5.5;
+      const c = palette[Math.floor(Math.random() * palette.length)];
+      particles.push({
+        type: 'spark',
+        x: cx, y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: 0.01 + Math.random() * 0.014,
+        color: c,
+        size: 0.9 + Math.random() * 1.8,
+        gravity: 0.04,
+      });
+    }
+  }
+
+  // ---------- Update ----------
+  function update() {
+    // Rockets
+    for (let i = rockets.length - 1; i >= 0; i--) {
+      rockets[i].update();
+      if (rockets[i].dead) rockets.splice(i, 1);
+    }
+    // Particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      if (p.type === 'word') {
+        if (p.delay > 0) { p.delay--; }
+        else if (p.progress < 1) {
+          p.progress = Math.min(1, p.progress + p.speed);
+          const e = 1 - Math.pow(1 - p.progress, 3);
+          p.x = p.ox + (p.tx - p.ox) * e;
+          p.y = p.oy + (p.ty - p.oy) * e;
+        } else if (p.hold > 0) {
+          p.hold--; // hold position, full brightness — readable moment
+        } else {
+          // Drift / fade — gentler so the word lingers
+          p.drift += 0.022;
+          p.x += Math.sin(p.drift + p.tx * 0.03) * 0.12;
+          p.y += 0.12;
+          p.life -= p.decay;
+        }
+      } else if (p.type === 'spark') {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.vx *= 0.985;
+        p.life -= p.decay;
+      }
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  // ---------- Draw ----------
+  function drawStars() {
+    for (let s of stars) {
+      s.t += s.s;
+      const a = 0.35 + Math.sin(s.t) * 0.35 + 0.35;
+      ctx.fillStyle = `rgba(255,245,230,${a * 0.55})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawParticles() {
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Pass 1 — sparks first (so the word reads on top of them)
+    for (let p of particles) {
+      if (p.type !== 'spark') continue;
+      const a = Math.max(0, Math.min(1, p.life));
+      if (a <= 0) continue;
+
+      // Soft halo
+      ctx.fillStyle = rgba(p.color, a * 0.26);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 3.0, 0, Math.PI * 2);
+      ctx.fill();
+      // Core
+      ctx.fillStyle = rgba(p.color, a);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Pass 2 — word particles drawn on top, bright white core + colored halo
+    const white = { r: 255, g: 248, b: 232 };
+    for (let p of particles) {
+      if (p.type !== 'word') continue;
+      if (p.delay > 0) continue;
+      const a = Math.max(0, Math.min(1, p.life));
+      if (a <= 0) continue;
+
+      // Outer colored halo (signature glow)
+      ctx.fillStyle = rgba(p.color, a * 0.42);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bright white core — the legible part
+      ctx.fillStyle = rgba(white, a);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 0.95, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function tick() {
+    // Trail fade
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.18)';
+    ctx.fillRect(0, 0, W, H);
+
+    drawStars();
+
+    for (let r of rockets) r.draw();
+
+    update();
+    drawParticles();
+
+    // Text labels — update + draw last so they sit on top, fully readable
+    for (let i = textLabels.length - 1; i >= 0; i--) {
+      textLabels[i].update();
+      if (textLabels[i].dead) textLabels.splice(i, 1);
+    }
+    for (let l of textLabels) l.draw();
+
+    requestAnimationFrame(tick);
+  }
+
+  // ---------- Audio ----------
+  let audioCtx = null;
+  let soundOn = true;
+  let idleTimer = null;
+  let suppressPrompt = false;
+  const soundBtn = document.getElementById('sound');
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) { audioCtx = null; }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function playLaunch() {
+    if (!soundOn || !audioCtx) return;
+    const now = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(180, now);
+    o.frequency.exponentialRampToValueAtTime(45, now + 0.55);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.08, now + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(now); o.stop(now + 0.62);
+  }
+
+  function playBoom() {
+    if (!soundOn || !audioCtx) return;
+    const now = audioCtx.currentTime;
+    const dur = 0.5;
+    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * dur, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2.2);
+    }
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    const filt = audioCtx.createBiquadFilter();
+    filt.type = 'lowpass';
+    filt.frequency.value = 1300;
+    const g = audioCtx.createGain();
+    g.gain.value = 0.22;
+    src.connect(filt); filt.connect(g); g.connect(audioCtx.destination);
+    src.start(now);
+
+    // Crackles
+    for (let i = 0; i < 9; i++) {
+      const t = now + 0.18 + i * 0.05 + Math.random() * 0.04;
+      const oo = audioCtx.createOscillator();
+      const gg = audioCtx.createGain();
+      oo.frequency.value = 1500 + Math.random() * 3500;
+      gg.gain.setValueAtTime(0.0001, t);
+      gg.gain.exponentialRampToValueAtTime(0.04, t + 0.005);
+      gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+      oo.connect(gg); gg.connect(audioCtx.destination);
+      oo.start(t); oo.stop(t + 0.12);
+    }
+  }
+
+  soundBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    soundOn = !soundOn;
+    if (soundOn) ensureAudio();
+    soundBtn.textContent = soundOn ? '🔊' : '🔇';
+  });
+
+  // ---------- Interaction ----------
+  const hud = document.getElementById('hud');
+  const hint = document.getElementById('hint');
+  const counterEl = document.getElementById('count');
+  const welcome = document.getElementById('welcome');
+  const finaleMsg = document.getElementById('finaleMsg');
+
+  function fmtCount(n) { return n.toString().padStart(2, '0'); }
+
+  function launchAt(x, y, word, palette, fontSize) {
+    rockets.push(new Rocket(x, y, word, palette || pickPalette(), fontSize || 72));
+    playLaunch();
+  }
+
+  function onSkyClick(e) {
+    if (welcome && !welcome.classList.contains('hidden')) return;
+    if (!fontsReady) return;
+
+    // Ignore clicks on HUD buttons
+    if (e.target && e.target.closest && e.target.closest('.sound-toggle')) return;
+
+    let x, y;
+    if (e.touches && e.touches[0]) {
+      x = e.touches[0].clientX; y = e.touches[0].clientY;
+    } else {
+      x = e.clientX; y = e.clientY;
+    }
+    // Don't burst too close to ceiling/floor
+    y = Math.max(80, Math.min(H - 100, y));
+
+    // Any valid tap fades the prompt and restarts the idle countdown
+    hint.classList.add('fade');
+    scheduleIdlePrompt();
+
+    if (finaleStarted) {
+      // Free play after finale — random compliment, cycle
+      const w = words[Math.floor(Math.random() * words.length)];
+      launchAt(x, y, w, pickPalette(), 70);
+      return;
+    }
+
+    clickCount++;
+    counterEl.textContent = fmtCount(Math.min(clickCount, 12));
+
+    if (clickCount < 12) {
+      const w = words[(clickCount - 1) % words.length];
+      launchAt(x, y, w, pickPalette(), 72);
+    } else {
+      // The twelfth — kick off the grand finale
+      triggerFinale(x, y);
+    }
+  }
+
+  // Re-shows the tap prompt after a few seconds of inactivity
+  function scheduleIdlePrompt() {
+    clearTimeout(idleTimer);
+    if (suppressPrompt) return;
+    idleTimer = setTimeout(() => {
+      if (suppressPrompt) return;
+      hint.classList.remove('fade');
+      hint.classList.add('visible');
+    }, 5000);
+  }
+
+  // ---------- Grand Finale ----------
+  function triggerFinale(cx, cy) {
+    finaleStarted = true;
+    suppressPrompt = true;
+    clearTimeout(idleTimer);
+    hint.classList.add('fade');
+
+    // Wave 1 — compliments fanning out around the center
+    const waveOne = [
+      { word: 'BEAUTIFUL', xr: 0.22, yr: 0.34, delay: 60,  size: 70 },
+      { word: 'GORGEOUS',  xr: 0.78, yr: 0.30, delay: 200, size: 70 },
+      { word: 'RADIANT',   xr: 0.18, yr: 0.58, delay: 360, size: 70 },
+      { word: 'ANGELIC',   xr: 0.82, yr: 0.55, delay: 520, size: 70 },
+      { word: 'DREAMY',    xr: 0.35, yr: 0.22, delay: 680, size: 70 },
+      { word: 'MAGICAL',   xr: 0.65, yr: 0.22, delay: 820, size: 70 },
+    ];
+    waveOne.forEach(m => {
+      setTimeout(() => {
+        launchAt(W * m.xr, H * m.yr, m.word, pickPalette(), m.size);
+      }, m.delay);
+    });
+
+    // Sparkle bed between waves
+    for (let i = 0; i < 14; i++) {
+      setTimeout(() => {
+        const x = Math.random() * W;
+        const y = H * (0.18 + Math.random() * 0.55);
+        sparkleBurst(x, y, pickPalette());
+        playBoom();
+      }, 1100 + i * 180);
+    }
+
+    // Wave 2 — the centerpiece phrase, stacked top-to-bottom
+    const center = W / 2;
+    setTimeout(() => launchAt(center, H * 0.26, "You're truly the",      pickPalette(), 56), 2400);
+    setTimeout(() => launchAt(center, H * 0.40, "Angel of Birds 🕊️ ✨",  pickPalette(), 68), 2820);
+
+    // The crown
+    setTimeout(() => {
+      const big = Math.min(150, W * 0.18);
+      launchAt(center, H * 0.60, 'ISHA', pickPalette(), big);
+    }, 3380);
+
+    // Crown sparkles
+    for (let i = 0; i < 18; i++) {
+      setTimeout(() => {
+        const x = center + (Math.random() - 0.5) * W * 0.7;
+        const y = H * (0.28 + Math.random() * 0.4);
+        sparkleBurst(x, y, pickPalette());
+        playBoom();
+      }, 3750 + i * 140);
+    }
+
+    // Reveal closing message + open up free-play (idle prompt may return)
+    setTimeout(() => {
+      finaleMsg.classList.add('visible');
+      suppressPrompt = false;
+      scheduleIdlePrompt();
+    }, 5900);
+  }
+
+  // ---------- Boot ----------
+  function startExperience() {
+    welcome.classList.add('hidden');
+    document.body.classList.remove('welcome-open');
+    hud.classList.add('visible');
+    setTimeout(() => hint.classList.add('visible'), 600);
+    ensureAudio(); // priming on a user gesture
+  }
+
+  document.getElementById('begin').addEventListener('click', (e) => {
+    e.stopPropagation();
+    startExperience();
+  });
+  // Prevent the begin button's tap from bubbling into a sky-click via pointerdown
+  document.getElementById('begin').addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+  });
+
+  // Unified pointer input — handles touch + mouse + pen in one stream
+  window.addEventListener('pointerdown', (e) => {
+    if (e.target && e.target.closest && e.target.closest('.welcome')) return;
+    onSkyClick(e);
+  });
+
+  // Prevent pinch-zoom on iOS
+  document.addEventListener('gesturestart', (e) => { e.preventDefault(); });
+
+  // Resize
+  window.addEventListener('resize', resize);
+
+  // Wait for fonts so word sampling is consistent
+  function waitForFonts() {
+    if (document.fonts && document.fonts.load) {
+      Promise.all([
+        document.fonts.load('700 72px "Caveat"'),
+        document.fonts.load('700 90px "Caveat"'),
+      ]).then(() => { fontsReady = true; }).catch(() => { fontsReady = true; });
+    } else {
+      setTimeout(() => fontsReady = true, 800);
+    }
+  }
+
+  // Init
+  resize();
+  waitForFonts();
+  tick();
+})();
+</script>
+</body>
+</html>
